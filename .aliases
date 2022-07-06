@@ -1,0 +1,14 @@
+alias vim="neovim"
+alias vi="neovim"
+alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias yorksplitvpn="sudo openconnect -b --protocol=nc webvpn.york.ac.uk --user=sb2444 -s 'vpn-slice \
+csgpu1.cs.york.ac.uk csgpu2.cs.york.ac.uk viking.york.ac.uk viking-ganglia.york.ac.uk \
+viking-admin01.york.ac.uk viking-admin02.york.ac.uk viking-admin03.york.ac.uk ssh.york.ac.uk'"
+alias lh="ls -halt"
+alias dbb='open -n -a "DB Browser for SQLite"'
+alias ghci='TERM=linux ghci'
+alias jx='java -jar -XstartOnFirstThread'
+mkcd()
+{
+    mkdir -p -- "$1" && cd -P -- "$1"
+}
