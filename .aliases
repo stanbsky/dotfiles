@@ -1,5 +1,11 @@
 alias vim="neovim"
 alias vi="neovim"
+#alias vim="nv"
+#alias vi="nv"
+#nv() {
+#    export TERM=iterm2
+#    neovim "$@"
+#}
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias yorksplitvpn="sudo openconnect -b --protocol=nc webvpn.york.ac.uk --user=sb2444 -s 'vpn-slice \
 csgpu1.cs.york.ac.uk csgpu2.cs.york.ac.uk viking.york.ac.uk viking-ganglia.york.ac.uk \
@@ -11,4 +17,46 @@ alias jx='java -jar -XstartOnFirstThread'
 mkcd()
 {
     mkdir -p -- "$1" && cd -P -- "$1"
+}
+alias xargs='gxargs'
+
+# Pushes the below commands into the given vagrant VM's .bashrc
+# Example: `vpush node1` from Vagrantfile directory, or
+# `vpush hexid` with the ID for your node from `vagrant global-status` from any directory
+vpush() {
+    vagrant ssh $1 -- -t << 'HEREDOC'
+        cat << 'EOF' >> /home/vagrant/.bashrc
+            CB_USER=Administrator
+            CB_PASS=testing
+            # Run a cbc command with the given credentials and input
+            # Example:          `cb get yourbucket yourkey`
+            # With STDIN input: `rand 128 | cb create yourbucket yourkey -V`
+            cb() {
+                # Check if we have input on STDIN, pass it at the end of command if true
+                if test ! -t 0; then
+                        read IN
+                        /opt/couchbase/bin/cbc "$1" -u $CB_USER -P $CB_PASS -U couchbase://localhost/"$2" "${@:3}" "$IN"
+                # Just pass command line arguments
+                else
+                        /opt/couchbase/bin/cbc "$1" -u $CB_USER -P $CB_PASS -U couchbase://localhost/"$2" "${@:3}"
+                fi
+            }
+            # Generate a JSON doc of a given size filled with a random string for its value
+            # e.g. `rand 4K` will generate a JSON of the form {"k":"...random..."} that is exactly 4096 bytes long
+            # For info on which suffixes to use after the number look at `man head`
+            rand() {
+                base64 -w 0 /dev/urandom | head -c $1 | head -c -8 | sed 's/^/{"k":"/;s/$/"}/'
+            }
+            # Run a provided query and parse out the timings for the query and each individual step from the plan
+            cqt() {
+                /opt/couchbase/bin/cbq -u "$CB_USER" -p "$CB_PASS" -q -s "\set -profile timings" -s "$1" | jq '.metrics, .profile.phaseTimes, .profile.phaseCounts, .profile.phaseOperators'
+            }
+EOF
+HEREDOC
+}
+
+alias vgs='vagrant global-status'
+alias vu='vagrant up'
+vdo() {
+    vagrant global-status | awk "/$1/{print \$1}" | gxargs -r -d '\n' -n 1 -- vagrant $2
 }

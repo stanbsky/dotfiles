@@ -1,4 +1,4 @@
-let g:python3_host_prog = '/opt/homebrew/bin/python3'
+let g:python3_host_prog = '/usr/bin/python3'
 let g:airline_powerline_fonts = 1
 " https://github.com/vim-airline/vim-airline/issues/1779
 let g:airline_highlighting_cache = 1
@@ -33,7 +33,7 @@ nnoremap <silent> <leader>DP :exe ":profile pause"<cr>
 nnoremap <silent> <leader>DC :exe ":profile continue"<cr>
 nnoremap <silent> <leader>DQ :exe ":profile pause"<cr>:noautocmd qall!<cr>
 
-let g:slime_target = "vimterminal"
+let g:slime_target = "neovim"
 
 " fix highlighting
 noremap <F12> <Esc>:syntax sync fromstart<CR>
@@ -42,3 +42,21 @@ inoremap <F12> <C-o>:syntax sync fromstart<CR>
 " SYS3
 noremap <F5> <Esc>:w<bar>!source code/smake week34<CR>
 inoremap <F5> <C-o>:w<bar>!source code/smake week34<CR>
+
+inoremap '' `
+
+" Start a repl for vim-slime
+fun! StartREPL(repl)
+  execute 'terminal '.a:repl
+  " execute 'terminal ghci'
+  setlocal nonumber
+  let t:term_id = b:terminal_job_id
+  wincmd p
+  execute 'let b:slime_config = {"jobid": "'.t:term_id . '"}'
+endfun
+
+noremap <silent> tp :vsplit<bar>:call StartREPL('ipython')<CR>
+noremap <silent> th :vsplit<bar>:call StartREPL('ghci')<CR>
+
+tnoremap <Esc> <C-\><C-n>
+
